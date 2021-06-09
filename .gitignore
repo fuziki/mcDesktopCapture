@@ -7,5 +7,4 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 Video
 Build
-Examples
 *.xcuserstate
