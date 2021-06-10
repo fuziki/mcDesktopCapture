@@ -23,6 +23,16 @@ public class Cube : MonoBehaviour
     [DllImport("mcDesktopCapture")]
     private static extern IntPtr mcDesktopCapture_getCurrentFrame2(ref int width, ref int height);
 
+    [StructLayout(LayoutKind.Sequential)]
+    struct FrameEntity
+    {
+        public long width;
+        public long height;
+        public IntPtr texturePtr;
+    }
+    [DllImport("mcDesktopCapture")]
+    private static extern FrameEntity mcDesktopCapture_getCurrentFrame3();
+
     [DllImport("mcDesktopCapture")]
     private static extern int mcDesktopCapture_clearFrame(IntPtr texturePtr);
 
@@ -46,19 +56,16 @@ public class Cube : MonoBehaviour
             mcDesktopCapture_clearFrame(texturePtr);
         }
 
-        int w = -1;
-        int h = -1;
-
-        IntPtr ptr = mcDesktopCapture_getCurrentFrame2(ref w, ref h);
+        FrameEntity frameEntity = mcDesktopCapture_getCurrentFrame3();
 
         //Debug.Log($"h: {h}, w: {w}");
 
-        if (w > 0 && h > 0)
+        if (frameEntity.width > 0 && frameEntity.height > 0)
         {
             inited = true;
-            texturePtr = ptr;
+            texturePtr = frameEntity.texturePtr;
 
-            Texture2D texture = Texture2D.CreateExternalTexture(w, h, TextureFormat.ARGB32, false, false, texturePtr);
+            Texture2D texture = Texture2D.CreateExternalTexture((int)frameEntity.width, (int)frameEntity.height, TextureFormat.ARGB32, false, false, texturePtr);
             Renderer m_Renderer = GetComponent<Renderer>();
 
             m_Renderer.material.SetTexture("_MainTex", texture);

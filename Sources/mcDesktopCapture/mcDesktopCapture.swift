@@ -1,4 +1,5 @@
 import AVFoundation
+import CmcDesktopCapture
 import Metal
 
 struct mcDesktopCapture {
@@ -37,11 +38,22 @@ public func mcDesktopCapture_getCurrentFrame(_ width: UnsafeMutablePointer<Int64
 
 @_cdecl("mcDesktopCapture_getCurrentFrame2")
 public func mcDesktopCapture_getCurrentFrame2(_ width: UnsafeMutablePointer<Int64>,
-                                             _ height: UnsafeMutablePointer<Int64>) -> UnsafeMutableRawPointer? {
+                                              _ height: UnsafeMutablePointer<Int64>) -> UnsafeMutableRawPointer? {
     guard let texture = DesktopCapture.shared?.currentTexture else { return nil }
     width.initialize(to: Int64(texture.width))
     height.initialize(to: Int64(texture.height))
     return Unmanaged.passRetained(texture).toOpaque()
+}
+
+@_cdecl("mcDesktopCapture_getCurrentFrame3")
+public func mcDesktopCapture_getCurrentFrame3() -> FrameEntity {
+    guard let texture = DesktopCapture.shared?.currentTexture else {
+        let e = FrameEntity(width: -1, height: -1, texturePtr: nil)
+        return e
+    }
+    let texturePtr = Unmanaged.passRetained(texture).toOpaque()
+    let e = FrameEntity(width: texture.width, height: texture.height, texturePtr: texturePtr)
+    return e
 }
 
 @_cdecl("mcDesktopCapture_clearFrame")
