@@ -26,27 +26,7 @@ public func mcDesktopCapture_stopCapture() {
 }
 
 @_cdecl("mcDesktopCapture_getCurrentFrame")
-public func mcDesktopCapture_getCurrentFrame(_ width: UnsafeMutablePointer<Int64>,
-                                             _ height: UnsafeMutablePointer<Int64>,
-                                             _ texturePtr: UnsafeMutableRawPointer) {
-    guard let texture = DesktopCapture.shared?.currentTexture else { return }
-    width.initialize(to: Int64(texture.width))
-    height.initialize(to: Int64(texture.height))
-    let ptr: UnsafeMutablePointer<MTLTexture> = texturePtr.bindMemory(to: MTLTexture.self, capacity: 1)
-    ptr.initialize(to: texture)
-}
-
-@_cdecl("mcDesktopCapture_getCurrentFrame2")
-public func mcDesktopCapture_getCurrentFrame2(_ width: UnsafeMutablePointer<Int64>,
-                                              _ height: UnsafeMutablePointer<Int64>) -> UnsafeMutableRawPointer? {
-    guard let texture = DesktopCapture.shared?.currentTexture else { return nil }
-    width.initialize(to: Int64(texture.width))
-    height.initialize(to: Int64(texture.height))
-    return Unmanaged.passRetained(texture).toOpaque()
-}
-
-@_cdecl("mcDesktopCapture_getCurrentFrame3")
-public func mcDesktopCapture_getCurrentFrame3() -> FrameEntity {
+public func mcDesktopCapture_getCurrentFrame() -> FrameEntity {
     guard let texture = DesktopCapture.shared?.currentTexture else {
         let e = FrameEntity(width: -1, height: -1, texturePtr: nil)
         return e
