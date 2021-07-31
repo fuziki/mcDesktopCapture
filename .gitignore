@@ -8,3 +8,4 @@ DerivedData/
 Video
 Build
 *.xcuserstate
+.swiftpm
