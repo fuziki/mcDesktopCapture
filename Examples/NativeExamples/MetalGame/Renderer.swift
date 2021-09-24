@@ -28,7 +28,6 @@ class Renderer: NSObject, MTKViewDelegate {
     var dynamicUniformBuffer: MTLBuffer
     var pipelineState: MTLRenderPipelineState
     var depthState: MTLDepthStencilState
-    var colorMapPtr: UnsafeMutableRawPointer? = nil
     var colorMap: MTLTexture
 
     let inFlightSemaphore = DispatchSemaphore(value: maxBuffersInFlight)
@@ -92,7 +91,7 @@ class Renderer: NSObject, MTKViewDelegate {
             return nil
         }
         
-        mcDesktopCapture_startCapture()
+        mcDesktopCapture_startCapture(displayID: CLong(CGMainDisplayID()))
 
         super.init()
 
@@ -100,9 +99,6 @@ class Renderer: NSObject, MTKViewDelegate {
     
     deinit {
         mcDesktopCapture_stopCapture()
-        if let colorMapPtr = self.colorMapPtr {
-            mcDesktopCapture_clearFrame(colorMapPtr)
-        }
     }
 
     class func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
@@ -220,19 +216,10 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     private func updateTexture() {
-        if let colorMapPtr = self.colorMapPtr {
-            mcDesktopCapture_clearFrame(colorMapPtr)
-        } else {
-            colorMapPtr = UnsafeMutableRawPointer(UnsafeMutablePointer<MTLTexture>.allocate(capacity: 1))
-        }
-        var w: Int64 = -1
-        var h: Int64 = -1
-        mcDesktopCapture_getCurrentFrame(&w, &h, colorMapPtr!)
-        print("w: \(w), h: \(h)")
-        if w > 0 && h > 0 {
-            colorMap = colorMapPtr!.assumingMemoryBound(to: MTLTexture.self).pointee
-        } else {
-            colorMapPtr = nil
+        let entity = mcDesktopCapture_getCurrentFrame()
+        print("w: \(entity.width), h: \(entity.height)")
+        if entity.width > 0 && entity.height > 0 {
+            colorMap = Unmanaged.fromOpaque(entity.texturePtr).takeRetainedValue()
         }
     }
 

@@ -4,10 +4,29 @@ using System.Runtime.InteropServices;
 
 namespace mcDesktopCapture
 {
+    [Serializable]
+    public class DisplayProperty
+    {
+        public int id;
+        public string name;
+        public int vendorNumber;
+        public int modelNumber;
+        public int serialNumber;
+    }
+
+    [Serializable]
+    public class DisplayList
+    {
+        public DisplayProperty[] list;
+    }
+
     public class DesktopCapture
     {
         [DllImport("mcDesktopCapture")]
-        private static extern void mcDesktopCapture_startCapture();
+        private static extern string mcDesktopCapture_displayList();
+
+        [DllImport("mcDesktopCapture")]
+        private static extern void mcDesktopCapture_startCapture(long displayId);
 
         [DllImport("mcDesktopCapture")]
         private static extern void mcDesktopCapture_stopCapture();
@@ -28,9 +47,19 @@ namespace mcDesktopCapture
         private static IntPtr texturePtr = IntPtr.Zero;
         private static bool inited = false;
 
-        public static void StartCapture()
+        public static DisplayProperty[] DisplayList
         {
-            mcDesktopCapture_startCapture();
+            get
+            {
+                var str = mcDesktopCapture_displayList();
+                var list = JsonUtility.FromJson<DisplayList>(str);
+                return list.list;
+            }
+        }
+
+        public static void StartCapture(int displayId)
+        {
+            mcDesktopCapture_startCapture(displayId);
         }
 
         public static void StopCapture()
