@@ -15,24 +15,21 @@ Unity native plugin to capture the macOS desktop as Texture2D
 ## Start capture
 
 ```c#
-mcDesktopCapture_startCapture();
+var list = DesktopCapture.DisplayList;
+mcDesktopCapture_startCapture(list[0].id);
 ```
 
 ## Get current frame
 
 * If w and h are not updated, the frame acquisition has failed.
-
-```c#
-int w = -1;
-int h = -1;
-
-IntPtr ptr = mcDesktopCapture_getCurrentFrame2(ref w, ref h);
-```
-
 * Create Texture2D from IntPtr
 
 ```c#
-Texture2D texture = Texture2D.CreateExternalTexture(w, h, TextureFormat.ARGB32, false, false, texturePtr);
+FrameEntity frameEntity = mcDesktopCapture_getCurrentFrame();
+if (frameEntity.width > 0 && frameEntity.height > 0)
+{
+    texture = Texture2D.CreateExternalTexture((int)frameEntity.width, (int)frameEntity.height, TextureFormat.ARGB32, false, false, texturePtr);
+}
 ```
 
 ## Clear frame if need
