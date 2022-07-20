@@ -15,6 +15,8 @@ public class Cube : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Application.targetFrameRate = 60;
+
         list = DesktopCapture.DisplayList;
         dropdown.options = list.ToList()
             .ConvertAll(display => new Dropdown.OptionData($"{display.name}({display.id})"));
