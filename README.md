@@ -5,7 +5,7 @@ Unity native plugin to capture the macOS desktop as Texture2D
 ![unity_example](docs/videos/unity_example.gif)  
 
 # Environment
-* macOS 11.3.1
+* macOS 12.4
 * Unity 2020.3.5
 
 # Installation
