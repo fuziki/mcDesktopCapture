@@ -29,6 +29,7 @@ class Renderer: NSObject, MTKViewDelegate {
     var pipelineState: MTLRenderPipelineState
     var depthState: MTLDepthStencilState
     var colorMap: MTLTexture
+    var capturedTexture: MTLTexture? = nil
 
     let inFlightSemaphore = DispatchSemaphore(value: maxBuffersInFlight)
 
@@ -214,68 +215,70 @@ class Renderer: NSObject, MTKViewDelegate {
         uniforms[0].modelViewMatrix = simd_mul(viewMatrix, modelMatrix)
         rotation += 0.005
     }
-    
-    private func updateTexture() {
+
+    func updateTexture() {
+        if capturedTexture != nil { return }
         let entity = mcDesktopCapture_getCurrentFrame()
         print("w: \(entity.width), h: \(entity.height)")
-        if entity.width > 0 && entity.height > 0 {
-            colorMap = Unmanaged.fromOpaque(entity.texturePtr).takeRetainedValue()
+        if entity.width <= 0 || entity.height <= 0 {
+            return
         }
+        capturedTexture = Unmanaged<MTLTexture>.fromOpaque(entity.texturePtr).takeUnretainedValue()
     }
 
     func draw(in view: MTKView) {
         /// Per frame updates hare
 
         _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
-        
+
         if let commandBuffer = commandQueue.makeCommandBuffer() {
             let semaphore = inFlightSemaphore
             commandBuffer.addCompletedHandler { (_ commandBuffer)-> Swift.Void in
                 semaphore.signal()
             }
-            
+
             self.updateDynamicBufferState()
-            
+
             self.updateGameState()
-            
+
             self.updateTexture()
-            
+
             /// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
             ///   holding onto the drawable and blocking the display pipeline any longer than necessary
             let renderPassDescriptor = view.currentRenderPassDescriptor
-            
+
             if let renderPassDescriptor = renderPassDescriptor {
-                
+
                 /// Final pass rendering code here
                 if let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
                     renderEncoder.label = "Primary Render Encoder"
-                    
+
                     renderEncoder.pushDebugGroup("Draw Box")
-                    
+
                     renderEncoder.setCullMode(.back)
-                    
+
                     renderEncoder.setFrontFacing(.counterClockwise)
-                    
+
                     renderEncoder.setRenderPipelineState(pipelineState)
-                    
+
                     renderEncoder.setDepthStencilState(depthState)
-                    
+
                     renderEncoder.setVertexBuffer(dynamicUniformBuffer, offset:uniformBufferOffset, index: BufferIndex.uniforms.rawValue)
                     renderEncoder.setFragmentBuffer(dynamicUniformBuffer, offset:uniformBufferOffset, index: BufferIndex.uniforms.rawValue)
-                    
+
                     for (index, element) in mesh.vertexDescriptor.layouts.enumerated() {
                         guard let layout = element as? MDLVertexBufferLayout else {
                             return
                         }
-                        
+
                         if layout.stride != 0 {
                             let buffer = mesh.vertexBuffers[index]
                             renderEncoder.setVertexBuffer(buffer.buffer, offset:buffer.offset, index: index)
                         }
                     }
-                    
-                    renderEncoder.setFragmentTexture(colorMap, index: TextureIndex.color.rawValue)
-                    
+
+                    renderEncoder.setFragmentTexture(capturedTexture ?? colorMap, index: TextureIndex.color.rawValue)
+
                     for submesh in mesh.submeshes {
                         renderEncoder.drawIndexedPrimitives(type: submesh.primitiveType,
                                                             indexCount: submesh.indexCount,
@@ -284,17 +287,17 @@ class Renderer: NSObject, MTKViewDelegate {
                                                             indexBufferOffset: submesh.indexBuffer.offset)
                         
                     }
-                    
+
                     renderEncoder.popDebugGroup()
-                    
+
                     renderEncoder.endEncoding()
-                    
+
                     if let drawable = view.currentDrawable {
                         commandBuffer.present(drawable)
                     }
                 }
             }
-            
+
             commandBuffer.commit()
         }
     }

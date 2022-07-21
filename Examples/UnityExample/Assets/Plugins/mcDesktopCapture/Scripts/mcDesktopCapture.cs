@@ -20,7 +20,7 @@ namespace mcDesktopCapture
         public DisplayProperty[] list;
     }
 
-    public class DesktopCapture
+    public static class DesktopCapture
     {
         [DllImport("mcDesktopCapture")]
         private static extern string mcDesktopCapture_displayList();
@@ -41,12 +41,6 @@ namespace mcDesktopCapture
         [DllImport("mcDesktopCapture")]
         private static extern FrameEntity mcDesktopCapture_getCurrentFrame();
 
-        [DllImport("mcDesktopCapture")]
-        private static extern int mcDesktopCapture_clearFrame(IntPtr texturePtr);
-
-        private static IntPtr texturePtr = IntPtr.Zero;
-        private static bool inited = false;
-
         public static DisplayProperty[] DisplayList
         {
             get
@@ -57,32 +51,43 @@ namespace mcDesktopCapture
             }
         }
 
+        private static bool isRunning = false;
+
         public static void StartCapture(int displayId)
         {
+            if (isRunning) return;
+            isRunning = true;
+            Log("mcDesktopCapture: Start Capture");
             mcDesktopCapture_startCapture(displayId);
         }
 
         public static void StopCapture()
         {
+            if (!isRunning) return;
+            _texture = null;
+            Log("mcDesktopCapture: Stop Capture");
             mcDesktopCapture_stopCapture();
+            isRunning = false;
         }
 
-        public static Texture2D GetCurrentFrame()
+        private static Texture2D _texture = null;
+        public static Texture2D GetTexture2D()
         {
-            if (inited)
-            {
-                mcDesktopCapture_clearFrame(texturePtr);
-            }
-            Texture2D texture = null;
+            if (!isRunning) return null;
+            if (_texture != null) return _texture;
+            Log("mcDesktopCapture: Get Current Frame");
             FrameEntity frameEntity = mcDesktopCapture_getCurrentFrame();
-            if (frameEntity.width > 0 && frameEntity.height > 0)
+            if (frameEntity.width > 0 && frameEntity.height > 0 && _texture == null)
             {
-                inited = true;
-                texturePtr = frameEntity.texturePtr;
-
-                texture = Texture2D.CreateExternalTexture((int)frameEntity.width, (int)frameEntity.height, TextureFormat.ARGB32, false, false, texturePtr);
+                Log("mcDesktopCapture: Create Texture2D");
+                _texture = Texture2D.CreateExternalTexture((int)frameEntity.width, (int)frameEntity.height, TextureFormat.ARGB32, false, false, frameEntity.texturePtr);
             }
-            return texture;
+            return _texture;
+        }
+
+        private static void Log(object message)
+        {
+            Debug.Log(message);
         }
     }
 }

@@ -11,6 +11,7 @@ public class Cube : MonoBehaviour
     private DisplayProperty[] list = { };
 
     private bool isRunning = false;
+    private bool setTexture = false;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +19,11 @@ public class Cube : MonoBehaviour
         Application.targetFrameRate = 60;
 
         list = DesktopCapture.DisplayList;
+        var non = new DisplayProperty();
+        non.id = -999;
+        non.name = "Stop";
+        // Append Property for Stop
+        list = list.Append(non).ToArray();
         dropdown.options = list.ToList()
             .ConvertAll(display => new Dropdown.OptionData($"{display.name}({display.id})"));
 
@@ -32,8 +38,12 @@ public class Cube : MonoBehaviour
 
         if (!isRunning) return;
 
-        var texture = DesktopCapture.GetCurrentFrame();
+        if (setTexture) return;
+
+        var texture = DesktopCapture.GetTexture2D();
         if (texture == null) return;
+
+        setTexture = true;
 
         Renderer m_Renderer = GetComponent<Renderer>();
         m_Renderer.material.SetTexture("_MainTex", texture);
@@ -51,6 +61,7 @@ public class Cube : MonoBehaviour
         dropdown.enabled = false;
         isRunning = false;
         DesktopCapture.StopCapture();
+        setTexture = false;
         Debug.Log("restarting...");
         Restart();
     }
@@ -58,7 +69,14 @@ public class Cube : MonoBehaviour
     async void Restart()
     {
         await Task.Delay(500);
-        DesktopCapture.StartCapture(list[dropdown.value].id);
+        var id = list[dropdown.value].id;
+        if (id < 0) {
+            Debug.Log("non");
+            isRunning = false;
+            dropdown.enabled = true;
+            return;
+        }
+        DesktopCapture.StartCapture(id);
         await Task.Delay(500);
         Debug.Log("restart!");
         isRunning = true;
