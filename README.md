@@ -9,7 +9,7 @@ Unity native plugin to capture the macOS desktop as Texture2D
 * Unity 2021.3.6
 
 # Installation
-* Copy mcDesktopCapture.bundle to your project.
+* Download mcDesktopCapture.unitypakcage from [Releases](https://github.com/fuziki/mcDesktopCapture/releases) and install it in your project.
 
 # Usage
 ## Start capture
