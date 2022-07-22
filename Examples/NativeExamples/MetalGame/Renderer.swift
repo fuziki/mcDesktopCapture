@@ -45,6 +45,8 @@ class Renderer: NSObject, MTKViewDelegate {
 
     var mesh: MTKMesh
 
+    let use2 = true
+
     init?(metalKitView: MTKView) {
         self.device = metalKitView.device!
         self.commandQueue = self.device.makeCommandQueue()!
@@ -91,15 +93,39 @@ class Renderer: NSObject, MTKViewDelegate {
             print("Unable to load texture. Error info: \(error)")
             return nil
         }
-        
-        mcDesktopCapture_startCapture(displayID: CLong(CGMainDisplayID()))
+
+        if use2 {
+            let the2 = mcDesktopCapture2_init()
+            print("the2: \(String(describing: NSString(cString: the2!, encoding: String.Encoding.utf8.rawValue)))")
+
+            let windowsStrPtr = mcDesktopCapture2_windows()
+            let windowsStr = NSString(cString: windowsStrPtr!, encoding: String.Encoding.utf8.rawValue)! as String
+            let windowsList = try! JSONDecoder().decode(WindowList.self, from: windowsStr.data(using: .utf8)!)
+            if let window = windowsList.windows
+                .first(where: { ($0.owningApplication.applicationName == "GitHub Desktop" && $0.isOnScreen) }) {
+                let config = StartCaptureConfig(windowID: window.windowID,
+                                                width: window.frame.width,
+                                                height: window.frame.height,
+                                                showsCursor: true)
+                let configNsStr = (String(data: try! JSONEncoder().encode(config), encoding: .utf8)! as NSString)
+                mcDesktopCapture2_startWithWindowID(configNsStr.utf8String)
+            } else {
+                print("no window!!")
+            }
+        } else {
+            mcDesktopCapture_startCapture(displayID: CLong(CGMainDisplayID()))
+        }
 
         super.init()
-
     }
-    
+
     deinit {
-        mcDesktopCapture_stopCapture()
+        if use2 {
+            mcDesktopCapture2_stop()
+            mcDesktopCapture2_destroy()
+        } else {
+            mcDesktopCapture_stopCapture()
+        }
     }
 
     class func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
@@ -218,12 +244,21 @@ class Renderer: NSObject, MTKViewDelegate {
 
     func updateTexture() {
         if capturedTexture != nil { return }
-        let entity = mcDesktopCapture_getCurrentFrame()
-        print("w: \(entity.width), h: \(entity.height)")
-        if entity.width <= 0 || entity.height <= 0 {
-            return
+        if use2 {
+            let entity = mcDesktopCapture2_getTexture()
+            print("2: w: \(entity.width), h: \(entity.height)")
+            if entity.width <= 0 || entity.height <= 0 {
+                return
+            }
+            capturedTexture = Unmanaged<MTLTexture>.fromOpaque(entity.texturePtr).takeUnretainedValue()
+        } else {
+            let entity = mcDesktopCapture_getCurrentFrame()
+            print("w: \(entity.width), h: \(entity.height)")
+            if entity.width <= 0 || entity.height <= 0 {
+                return
+            }
+            capturedTexture = Unmanaged<MTLTexture>.fromOpaque(entity.texturePtr).takeUnretainedValue()
         }
-        capturedTexture = Unmanaged<MTLTexture>.fromOpaque(entity.texturePtr).takeUnretainedValue()
     }
 
     func draw(in view: MTKView) {
