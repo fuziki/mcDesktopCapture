@@ -78,7 +78,7 @@ namespace mcDesktopCapture
             {
                 var str = mcDesktopCapture2_windows();
                 var list = JsonUtility.FromJson<WindowList>(str);
-                return list.windows.Where(w => w.owningApplication.applicationName == "Google Chrome").ToArray();
+                return list.windows;
             }
         }
 
