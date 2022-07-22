@@ -4,7 +4,7 @@
 * Sample for mcDesktopCapture
 * This function only supports capturing the entire display.
 
-![unity_example](docs/videos/unity_example.gif)
+![unity_example](../docs/videos/unity_example.gif)
 
 ## SampleScene2
 * UnityExample/Assets/Scenes/SampleScene2.unity
