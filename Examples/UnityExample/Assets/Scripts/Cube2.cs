@@ -22,12 +22,16 @@ public class Cube2 : MonoBehaviour
         DesktopCapture2.Init();
 
         list = DesktopCapture2.WindowList;
-        var non = new WindowProperty();
-        non.windowID = -999;
-        non.owningApplication = new WindowProperty.RunningApplication();
-        non.owningApplication.applicationName = "Stop";
-        non.frame = new WindowProperty.Frame();
-        non.isOnScreen = true;
+        var non = new WindowProperty
+        {
+            windowID = -999,
+            owningApplication = new WindowProperty.RunningApplication
+            {
+                applicationName = "Stop"
+            },
+            frame = new WindowProperty.Frame(),
+            isOnScreen = true
+        };
         // Append Property for Stop
         list = list.Append(non).ToArray();
         dropdown.options = list.ToList()
