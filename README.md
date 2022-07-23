@@ -48,7 +48,7 @@ DesktopCapture.StopCapture();
 
 * Support macOS 12.3+
 * Based on [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit)
-* This function is able to capture each window.
+* This feature is able to capture each window.
 
 ### Start capture
 
