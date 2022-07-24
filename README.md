@@ -14,6 +14,11 @@ https://user-images.githubusercontent.com/33706353/180478830-64fae2ab-321e-4d88-
 
 # Installation
 * Download mcDesktopCapture.unitypakcage from [Releases](https://github.com/fuziki/mcDesktopCapture/releases) and install it in your project.
+* To allow monitoring of keyboard input in the background, you need to add Unity to Accessibility.  
+* Open `System Preferences` > `Security & Privacy` > `Privacy` > `Screen Recording` and add `Unity.app`.  
+  (And `Unity Hub.app` if you use)  
+
+![screen-recording](docs/images/screen-recording.png)  
 
 # Usage
 ## mcDesktopCapture
