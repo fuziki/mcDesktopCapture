@@ -2,25 +2,25 @@
 
 Unity native plugin to capture the macOS desktop as Texture2D
 
-https://user-images.githubusercontent.com/33706353/180478830-64fae2ab-321e-4d88-9eb6-b6dfc121da31.mp4
-
-# Environment
-* mcDesktopCapture
-  * macOS 12+
-* mcDesktopCapture2
-  * macOS 12.3+
-* Xcode 13.4
-* Unity 2021.3.6
+<video src="https://user-images.githubusercontent.com/33706353/180478830-64fae2ab-321e-4d88-9eb6-b6dfc121da31.mp4"></video>
 
 # Installation
 * Download mcDesktopCapture.unitypakcage from [Releases](https://github.com/fuziki/mcDesktopCapture/releases) and install it in your project.
-* To allow monitoring of keyboard input in the background, you need to add Unity to Accessibility.  
+* To allow monitoring of keyboard input in the background, you need to add Unity to Privacy Settings.  
 * Open `System Preferences` > `Security & Privacy` > `Privacy` > `Screen Recording` and add `Unity.app`.  
   (And `Unity Hub.app` if you use)  
 
-![screen-recording](docs/images/screen-recording.png)  
+<img src="docs/images/screen-recording.png" width="600">
 
 # Usage
+
+|   | mcDesktopCapture | mcDesktopCapture2 |
+| :--- | :--- | :--- |
+| Unity | Unity 2021.X<br>Unity 2022.X<br>Unity 2022.2+ (Apple Silicon) | Unity 2021.X<br>Unity 2022.X<br>Unity 2022.2+ (Apple Silicon) |
+| Platform | macOS 12+ (Apple Silicon and Intel) | macOS 12.3+ (Apple Silicon and Intel) |
+| Technology | [Quartz Display Services](https://developer.apple.com/documentation/coregraphics/quartz_display_services) | [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit) |
+| Capturing | Entire Display | Each windows |
+
 ## mcDesktopCapture
 
 * Support macOS 12+
