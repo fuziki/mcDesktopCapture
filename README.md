@@ -1,5 +1,9 @@
 # mcDesktopCapture
 
+![Platform](https://img.shields.io/badge/platform-%20macOS%2012%2B-lightgrey.svg)
+![Unity](https://img.shields.io/badge/unity-2021%2B-green.svg)
+![Xode](https://img.shields.io/badge/xcode-xcode14-green.svg)
+
 Unity native plugin to capture the macOS desktop as Texture2D
 
 <video src="https://user-images.githubusercontent.com/33706353/180478830-64fae2ab-321e-4d88-9eb6-b6dfc121da31.mp4"></video>
