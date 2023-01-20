@@ -5,6 +5,7 @@
 //  Created by fuziki on 2021/09/25.
 //
 
+import CoreGraphics
 import Foundation
 
 class QuartzDisplayUtil {
